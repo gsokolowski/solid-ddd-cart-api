@@ -1,59 +1,49 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# solid-ddd-cart-api
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A small Laravel REST API for practicing SOLID and a light Domain-Driven Design layout. It is a cart and checkout exercise, not a full shop.
 
-## About Laravel
+Customers register and log in with Laravel Sanctum and receive a Bearer token. With that token they can list products, keep a cart, and check out. Checkout supports two fake payment methods, Stripe and PayPal, behind one payment interface so a new method does not require changes inside the checkout flow.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## What it is for
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Keep business rules in the domain and application layers, not in controllers.
+- Depend on interfaces for catalogs, carts, orders, and payments.
+- Treat sales as one bounded context: user, product, cart, order, and payment.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## API
 
-## Learning Laravel
+JSON routes live under `/api`.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Area | What a client can do |
+| --- | --- |
+| Auth | Register, log in, log out, and read the current user. Login returns a Sanctum token. |
+| Catalog | List products. |
+| Cart | Add a product, list the cart, change a quantity, and remove a line. |
+| Checkout | Turn the cart into a paid order with `stripe` or `paypal`, then clear the cart. |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Protected routes expect `Authorization: Bearer {token}`. There is no HTML login page.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Stack
 
-## Agentic Development
+- Laravel 13
+- Laravel Sanctum (API tokens)
+- MySQL 8
+- PHPUnit feature tests for auth, cart, and checkout
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Shape of the code
 
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+HTTP (controllers)
+   ↓
+Application (use cases)
+   ↓
+Domain (entities, interfaces, domain services)
+   ↑
+Infrastructure (Eloquent repositories, Sanctum, payment adapters)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Controllers validate the request and call a use case. Price and payment rules stay in domain services. Eloquent models and the Stripe and PayPal adapters stay in infrastructure.
 
-## Contributing
+## Out of scope
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# solid-ddd-cart-api
+No storefront UI, Google login, real payment SDKs, coupons, wishlists, admin panel, CQRS, or domain events.
