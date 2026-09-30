@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'greg@gmail.com',
             ]);
             
-        User::factory(10)->create();
+        // User::factory(10)->create();
 
         $this->call(ProductSeeder::class);
     }
